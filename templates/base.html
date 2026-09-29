@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        Socially
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+</head>
+
+<body>
+
+{% if user.is_authenticated %}
+
+<header class="navbar">
+
+    <a
+        href="{% url 'home' %}"
+        class="logo"
+    >
+        ✦ Socially
+    </a>
+
+
+    <div class="nav-right">
+
+        <a
+            href="{% url 'profile' user.username %}"
+            class="profile-link"
+        >
+
+            <span class="mini-avatar">
+
+                {{ user.username|first|upper }}
+
+            </span>
+
+            <span class="nav-username">
+
+                {{ user.username }}
+
+            </span>
+
+        </a>
+
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout-link"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</header>
+
+{% endif %}
+
+
+{% block content %}
+{% endblock %}
+
+
+<script
+    src="{% static 'js/script.js' %}"
+></script>
+
+</body>
+
+</html>

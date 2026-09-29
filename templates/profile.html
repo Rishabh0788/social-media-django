@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ profile_user.username }} | Socially
+{% endblock %}
+
+
+{% block content %}
+
+<div class="profile-container">
+
+
+    <!-- PROFILE -->
+
+    <section class="profile-card">
+
+
+        <div class="cover"></div>
+
+
+        <div class="profile-main">
+
+
+            <div class="large-avatar">
+
+                {% if profile.profile_image %}
+
+                    <img
+                        src="{{ profile.profile_image.url }}"
+                        alt="Profile"
+                    >
+
+                {% else %}
+
+                    {{ profile_user.username|first|upper }}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="profile-info">
+
+                <h1>
+                    {{ profile_user.username }}
+                </h1>
+
+                <p>
+                    {{ profile.bio|default:"No bio yet." }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                {% if request.user == profile_user %}
+
+                <button
+                    class="secondary-button"
+                    onclick="toggleEdit()"
+                >
+                    Edit Profile
+                </button>
+
+                {% else %}
+
+                <a
+                    href="{% url 'follow' profile_user.username %}"
+                    class="primary-button"
+                >
+
+                    {% if is_following %}
+
+                        Unfollow
+
+                    {% else %}
+
+                        Follow
+
+                    {% endif %}
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+
+        <div class="profile-stats">
+
+            <div>
+
+                <strong>
+                    {{ posts.count }}
+                </strong>
+
+                <span>
+                    Posts
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    {{ profile.followers.count }}
+                </strong>
+
+                <span>
+                    Followers
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    {{ profile_user.following.count }}
+                </strong>
+
+                <span>
+                    Following
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- EDIT PROFILE -->
+
+
+    {% if request.user == profile_user %}
+
+    <section
+        id="editProfile"
+        class="edit-card hidden"
+    >
+
+        <h2>
+            Edit Profile
+        </h2>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Save Changes
+            </button>
+
+        </form>
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- USER POSTS -->
+
+
+    <h2 class="section-title">
+        {{ profile_user.username }}'s Posts
+    </h2>
+
+
+    {% for post in posts %}
+
+    <article class="post-card">
+
+
+        <span class="post-time">
+            {{ post.created_at|timesince }}
+            ago
+        </span>
+
+
+        <div class="post-content">
+
+            {{ post.content }}
+
+        </div>
+
+
+        {% if post.image %}
+
+        <img
+            src="{{ post.image.url }}"
+            class="post-image"
+            alt="Post"
+        >
+
+        {% endif %}
+
+
+        <div class="post-stats">
+
+            <span>
+                ❤️ {{ post.likes.count }}
+            </span>
+
+            <span>
+                💬 {{ post.comments.count }}
+            </span>
+
+        </div>
+
+
+    </article>
+
+
+    {% empty %}
+
+
+    <div class="empty-state">
+
+        <h2>
+            No Posts Yet
+        </h2>
+
+        <p>
+            This user hasn't posted anything.
+        </p>
+
+    </div>
+
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

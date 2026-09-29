@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home | Socially
+{% endblock %}
+
+
+{% block content %}
+
+<div class="main-container">
+
+
+    <!-- CREATE POST -->
+
+    <section class="create-card">
+
+        <div class="create-header">
+
+            <div class="avatar">
+                {{ user.username|first|upper }}
+            </div>
+
+            <div>
+
+                <h3>
+                    Create a Post
+                </h3>
+
+                <p>
+                    Share something with your friends.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            {% csrf_token %}
+
+
+            {{ form.content }}
+
+
+            <div class="create-footer">
+
+                <label class="image-upload">
+
+                    📷 Add Image
+
+                    {{ form.image }}
+
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Post
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- POSTS -->
+
+
+    {% for post in posts %}
+
+    <article class="post-card">
+
+
+        <!-- POST HEADER -->
+
+        <div class="post-header">
+
+            <div class="post-user">
+
+                <div class="avatar">
+
+                    {{ post.author.username|first|upper }}
+
+                </div>
+
+
+                <div>
+
+                    <a
+                        href="{% url 'profile' post.author.username %}"
+                        class="post-username"
+                    >
+
+                        {{ post.author.username }}
+
+                    </a>
+
+                    <span class="post-time">
+
+                        {{ post.created_at|timesince }}
+                        ago
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            {% if post.author == user %}
+
+            <a
+                href="{% url 'delete_post' post.id %}"
+                class="delete-button"
+                onclick="return confirm('Delete this post?')"
+            >
+                🗑
+            </a>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- CONTENT -->
+
+        <div class="post-content">
+
+            {{ post.content }}
+
+        </div>
+
+
+        <!-- IMAGE -->
+
+        {% if post.image %}
+
+        <img
+            src="{{ post.image.url }}"
+            class="post-image"
+            alt="Post image"
+        >
+
+        {% endif %}
+
+
+        <!-- STATS -->
+
+        <div class="post-stats">
+
+            <span>
+                ❤️ {{ post.likes.count }} likes
+            </span>
+
+            <span>
+                💬 {{ post.comments.count }} comments
+            </span>
+
+        </div>
+
+
+        <!-- ACTION -->
+
+        <div class="post-actions">
+
+            <a
+                href="{% url 'like_post' post.id %}"
+                class="like-button
+                {% if user in post.likes.all %}
+                    liked
+                {% endif %}"
+            >
+
+                {% if user in post.likes.all %}
+
+                    ❤️ Liked
+
+                {% else %}
+
+                    ♡ Like
+
+                {% endif %}
+
+            </a>
+
+        </div>
+
+
+        <!-- COMMENTS -->
+
+        <div class="comments-section">
+
+
+            {% for comment in post.comments.all %}
+
+            <div class="comment">
+
+                <div class="comment-avatar">
+
+                    {{ comment.user.username|first|upper }}
+
+                </div>
+
+
+                <div class="comment-content">
+
+                    <strong>
+                        {{ comment.user.username }}
+                    </strong>
+
+                    <p>
+                        {{ comment.text }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <p class="no-comments">
+                No comments yet.
+            </p>
+
+            {% endfor %}
+
+
+            <form
+                method="POST"
+                action="{% url 'add_comment' post.id %}"
+                class="comment-form"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="text"
+                    name="text"
+                    placeholder="Write a comment..."
+                    required
+                >
+
+                <button type="submit">
+                    ➤
+                </button>
+
+            </form>
+
+        </div>
+
+    </article>
+
+
+    {% empty %}
+
+
+    <div class="empty-state">
+
+        <div>
+            ✦
+        </div>
+
+        <h2>
+            No Posts Yet
+        </h2>
+
+        <p>
+            Be the first one to share something!
+        </p>
+
+    </div>
+
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
